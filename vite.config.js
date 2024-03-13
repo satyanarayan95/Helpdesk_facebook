@@ -15,11 +15,5 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  server: {
-    https: {
-      key: readFileSync('localhost.key'),
-      cert: readFileSync('localhost.crt'),
-    },
-  },
+  }
 })
