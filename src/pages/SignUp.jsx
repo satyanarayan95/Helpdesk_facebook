@@ -120,7 +120,7 @@ export function SignUp() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">Login</Button>
+                            <Button type="submit">Sign Up</Button>
                         </form>
                         <p className="text-center">
                             Have an account? <a href="/auth/login" className="text-blue-500">Login</a>
