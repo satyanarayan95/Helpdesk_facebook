@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import io from 'socket.io-client';
 
 import ProfileImage from "../../assets/user.png";
 import { getDate, getTime } from "../../lib/utils";
@@ -7,6 +8,9 @@ import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import axios from "axios";
 import { useSelector } from "react-redux";
+
+const socketURL = import.meta.env.VITE_SOCKET_URL
+const socket = io(socketURL);
 
 
 export const Chat = ({ chat, updateChat }) => {
@@ -19,6 +23,18 @@ export const Chat = ({ chat, updateChat }) => {
   const authToken = localStorage.getItem('token');
 
   const chatBoxRef = useRef();
+
+  useEffect(() => {
+    socket.on('new message', (newMessage) => {
+      if (newMessage.clientId === chat.clientId) {
+        setMessages([...messages, newMessage]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [chat, messages]);
 
   const sendNewMessage = async () => {
     if (message.trim() === "") {

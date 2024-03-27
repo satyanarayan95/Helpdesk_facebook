@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { Chat } from "./chat";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import io from 'socket.io-client';
 
 export const ChatLayout = ({
   defaultLayout = [26, 74],
@@ -20,6 +21,8 @@ export const ChatLayout = ({
   navCollapsedSize,
 }) => {
   const navigate = useNavigate();
+  const socketURL = import.meta.env.VITE_SOCKET_URL
+  const socket = io(socketURL);
   const { isFacebookLinked, fbPageAccessToken, pageDetails } = useSelector((state) => state.fb);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -111,6 +114,17 @@ export const ChatLayout = ({
     }
     // return () => clearInterval(timer)
   }, [fbPageAccessToken, pageDetails]);
+
+  
+  useEffect(() => {
+    socket.on('new message', (newMessage) => {
+      setChats([...chats, newMessage]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [chats, socket]);
 
   const updateChat = async (clientId, senderId, message) => {
     let chatExists = false;
