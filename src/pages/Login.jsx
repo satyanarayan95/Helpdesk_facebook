@@ -52,7 +52,6 @@ export function LoginPage() {
             formSchema.parse(formData);
             dispatch(loginUser(formData));
             navigate('/dashboard');
-            toast.success('Login Success', {duration: 2000});
         } catch (error) {
             toast.error("Error occured while logging in", {duration: 2000});
         }
