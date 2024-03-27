@@ -14,15 +14,16 @@ import { Chat } from "./chat";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import io from 'socket.io-client';
+const socketURL = import.meta.env.VITE_SOCKET_URL
+
 
 export const ChatLayout = ({
   defaultLayout = [26, 74],
   defaultCollapsed = false,
   navCollapsedSize,
 }) => {
+  const socket = io(socketURL,{debugg:true})
   const navigate = useNavigate();
-  const socketURL = import.meta.env.VITE_SOCKET_URL
-  const socket = io(socketURL);
   const { isFacebookLinked, fbPageAccessToken, pageDetails } = useSelector((state) => state.fb);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -94,6 +95,7 @@ export const ChatLayout = ({
       const chats = await Promise.all(allChatsNamedPromises);
       setFetchLoader(false)
       setChats(chats);
+      updateSelectedChat(chats);
     } catch (error) {
       setFetchLoader(false)
       toast.error("error occured while fetching messages",{duration: 2000})
@@ -103,6 +105,16 @@ export const ChatLayout = ({
   const selectAChat = (chat) => {
     setSelectedChat(chat);
   };
+
+  const updateSelectedChat = (allChats) => {
+    if(!selectedChat) return;
+     allChats.forEach(cht => {
+      if(cht?.clientId === selectedChat.clientId && cht?.pageId === selectedChat.pageId) {
+        setSelectedChat(cht);
+        return;
+      }
+     })
+  }
 
   useEffect(() => {
     // let timer;
@@ -118,15 +130,15 @@ export const ChatLayout = ({
   
   useEffect(() => {
     socket.on('new message', (newMessage) => {
-      setChats([...chats, newMessage]);
+      getAllMessages();
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [chats, socket]);
+  }, [socket]);
 
-  const updateChat = async (clientId, senderId, message) => {
+  const updateChat = async (clientId, senderId, message, time) => {
     let chatExists = false;
     const updatedChats = chats?.map((c) => {
       if (c?.clientId === clientId) {
@@ -138,7 +150,7 @@ export const ChatLayout = ({
             {
               senderId: senderId,
               message: message,
-              time: Date.now(),
+              time: time || Date.now(),
             },
           ],
         };

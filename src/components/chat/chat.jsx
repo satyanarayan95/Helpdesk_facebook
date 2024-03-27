@@ -26,15 +26,15 @@ export const Chat = ({ chat, updateChat }) => {
 
   useEffect(() => {
     socket.on('new message', (newMessage) => {
-      if (newMessage.clientId === chat.clientId) {
-        setMessages([...messages, newMessage]);
-      }
+      // if (newMessage.clientId === chat.clientId) {
+      //   updateChat(chat?.clientId, chat?.pageId, chat?.message, chat?.time);
+      // }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [chat, messages]);
+  }, [chat,messages]);
 
   const sendNewMessage = async () => {
     if (message.trim() === "") {
